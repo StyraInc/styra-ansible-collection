@@ -1,0 +1,23 @@
+# which configuration to use
+config_mode: barebones
+# present or absent
+state: present
+
+# all configuration modes
+opa_name: opa
+opa_namespace: default
+opa_distribution: openpolicyagent/opa
+opa_version: 0.48.0-rootless
+debug: false
+# debug_output_dir: <no default>
+
+# config_mode is bundles
+# opa_bundle_url: https://play.openpolicyagent.org
+# opa_bundle_resource: bundles/Ef9aP7LCso
+opa_bundle_polling: 45
+
+# config_mode is dasdiscovery
+das_system_type: "custom"
+# das_system_id: <no default>
+# das_token: <no default>
+# das_tenant: <no default>

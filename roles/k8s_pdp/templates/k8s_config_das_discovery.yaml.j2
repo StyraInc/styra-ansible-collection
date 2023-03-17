@@ -1,0 +1,36 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: opa-config
+  namespace: {{ opa_namespace }}
+data:
+  opa.yaml: |
+    services:
+      - name: styra
+        url: https://{{ das_tenant }}.styra.com/v1
+        credentials:
+          bearer:
+            token_path: /config/thetoken
+      - name: styra-bundles
+        url: https://{{ das_tenant }}.styra.com/v1/bundles
+        credentials:
+          bearer:
+            token_path: /config/thetoken
+    labels:
+      system-id: {{ das_system_id }}
+      system-type: {{ das_system_type }}
+    discovery:
+      name: discovery
+      service: styra
+      prefix: /systems/{{ das_system_id }}
+
+---
+kind: Secret
+apiVersion: v1
+metadata:
+  name: opa-token
+  namespace: {{ opa_namespace }}
+data:
+  thetoken: "{{ das_token |b64encode }}"
+

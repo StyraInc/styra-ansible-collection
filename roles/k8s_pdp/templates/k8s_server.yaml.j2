@@ -1,0 +1,84 @@
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ opa_name }}
+  namespace: {{ opa_namespace }}
+spec:
+  selector:
+    app: opa
+  ports:
+  - name: http
+    protocol: TCP
+    port: 8181
+    targetPort: 8181
+
+---
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: opa
+  namespace: {{ opa_namespace }}
+  name: {{ opa_name }}
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: opa
+  template:
+    metadata:
+      annotations:
+        checksum/config: d2eb96f547fecd1edda819392deec719f09d706c501aa5b15c2a9b389e78dce1
+      labels:
+        app: opa
+      name: {{ opa_name }}
+    spec:
+      containers:
+      - name: opa
+        image: {{ opa_distribution }}:{{ opa_version }}
+        args:
+          - "run"
+          - "--server"
+{% if config_mode != 'barebones' %}
+          - "--config-file=/config/opa.yaml"
+{% endif %}
+        livenessProbe:
+          httpGet:
+            path: /health
+            scheme: HTTP
+            port: 8181
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /health?bundle=true
+            scheme: HTTP
+            port: 8181
+          initialDelaySeconds: 10
+          periodSeconds: 5
+{% if config_mode != 'barebones' %}
+        volumeMounts:
+            - readOnly: true
+              mountPath: /config/opa.yaml
+              subPath: opa.yaml
+              name: config-volume
+{% if config_mode == 'das_discovery' %}
+            - readOnly: true
+              mountPath: /config/thetoken
+              subPath: thetoken
+              name: token-volume
+{% endif %}
+      volumes:
+      - name: config-volume
+        configMap:
+          name: opa-config
+{% if config_mode == 'das_discovery' %}
+      - name: token-volume
+        secret:
+          secretName: opa-token
+{% endif %}
+{% endif %}
+---

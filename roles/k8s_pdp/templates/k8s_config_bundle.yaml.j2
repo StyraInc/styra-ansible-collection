@@ -1,0 +1,18 @@
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: opa-config
+  namespace: {{ opa_namespace }}
+data:
+  opa.yaml: |
+    services:
+      hooli:
+        url: {{ opa_bundle_url }}
+
+    bundles:
+      hooli:
+        service: hooli
+        resource: {{ opa_bundle_resource }}
+        polling:
+          long_polling_timeout_seconds: {{ opa_bundle_polling }}
