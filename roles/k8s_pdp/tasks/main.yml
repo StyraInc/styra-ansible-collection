@@ -2,7 +2,7 @@
 
 ########################
 # Check parameters
-- name: "Fail when config_mode not set properly"
+- name: "Ensure config_mode is set properly"
   ansible.builtin.fail:
     msg:
       - "config_mode must be one of 'barebones', 'bundle', or 'das_discovery''"
@@ -12,26 +12,26 @@
     - config_mode != 'bundle'
     - config_mode != 'das_discovery'
 
-- name: "Fail when debug_output_dir is not set with debug"
+- name: "Ensure debug_output_dir and debug are not both set"
   ansible.builtin.fail:
     msg: "debug_output_dir must be set when debug==true"
   when:
-  - debug == true
-  - debug_output_dir is not defined
+    - debug
+    - debug_output_dir is not defined
 
-- name: "Fail when mode is bundle and one of the required variables is not set"
+- name: "Ensure required variables are set when mode is 'bundle'"
   ansible.builtin.fail:
     msg: "config_mode 'bundle' requires opa_bundle_url and opa_bundle_resource"
   when:
-  - config_mode == 'bundle'
-  - opa_bundle_url is not defined or opa_bundle_resource is not defined
+    - config_mode == 'bundle'
+    - opa_bundle_url is not defined or opa_bundle_resource is not defined
 
-- name: "Fail when mode is das_discovery and one of the required variables is not set"
+- name: "Ensure required variables are set when mode is 'das_discovery'"
   ansible.builtin.fail:
     msg: "config_mode 'das_discovery' requires das_system_id and das_token and das_tenant"
   when:
-  - config_mode == 'das_discovery'
-  - das_system_id is not defined or das_token is not defined or das_tenant is not defined
+    - config_mode == 'das_discovery'
+    - das_system_id is not defined or das_token is not defined or das_tenant is not defined
 
 #####################################################################
 # Render manifests into the file system for visibility / debugging
@@ -39,12 +39,14 @@
   ansible.builtin.template:
     src: templates/k8s_server.yaml.j2
     dest: "{{ debug_output_dir }}/server.yaml"
-  when: debug == true
+    mode: '0444'
+  when: debug
 - name: Log OPA configuration manifest
   ansible.builtin.template:
     src: templates/k8s_config_{{ config_mode }}.yaml.j2
     dest: "{{ debug_output_dir }}/{{ config_mode }}.yaml"
-  when: debug == true and config_mode != 'barebones'
+    mode: '0444'
+  when: debug and config_mode != 'barebones'
 
 #####################################################################
 # Render and apply those manifests to Kubernetes
@@ -59,14 +61,8 @@
   kubernetes.core.k8s:
     state: "{{ state }}"
     definition: "{{ lookup('template', 'templates/k8s_server.yaml.j2' | from_yaml) }}"
-# - name: Install OPA bundle configuration onto k8s
-#   when: config_mode == 'bundle'
-#   kubernetes.core.k8s:
-#     state: "{{ state }}"
-#     definition: "{{ lookup('template', 'templates/k8s_config_bundle.yaml.j2' | from_yaml) }}"
 - name: Install OPA configuration onto k8s
   when: config_mode != 'barebones'
   kubernetes.core.k8s:
     state: "{{ state }}"
-    definition: "{{ lookup('template', 'templates/k8s_config_{{ config_mode }}.yaml.j2' | from_yaml) }}"
-
+    definition: "{{ lookup('template', 'templates/k8s_config_' ~ config_mode ~ '.yaml.j2' | from_yaml) }}"
