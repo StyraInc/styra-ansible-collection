@@ -33,7 +33,7 @@ Below are sample playbooks for each of the configuration options supported by th
   connection: local
   gather_facts: false
   roles:
-    - name: k8s_pdp
+    - name: styra.opa.k8s_pdp
       vars:
         config_mode: barebones
 ```
@@ -45,7 +45,7 @@ Below are sample playbooks for each of the configuration options supported by th
   connection: local
   gather_facts: false
   roles:
-    - name: k8s_pdp
+    - name: styra.opa.k8s_pdp
       vars:
         config_mode: bundle
         opa_bundle_url: https://play.openpolicyagent.org
@@ -61,7 +61,7 @@ Below are sample playbooks for each of the configuration options supported by th
   connection: local
   gather_facts: false
   roles:
-    - name: k8s_pdp
+    - name: styra.opa.k8s_pdp
       vars:
         config_mode: das_discovery
         # DAS is multi-tenant, so set your tenant name
@@ -89,7 +89,7 @@ Start with an ansible playbook (called `opapdp.yml`).
   connection: local
   gather_facts: false
   roles:
-    - name: k8s_pdp
+    - name: styra.opa.k8s_pdp
       vars:
         config_mode: bundle
         opa_bundle_url: https://play.openpolicyagent.org
@@ -120,7 +120,7 @@ Clean up after yourself by removing OPA from the k8s cluster by adding `state: a
   connection: local
   gather_facts: false
   roles:
-    - name: k8s_pdp
+    - name: styra.opa.k8s_pdp
       vars:
         config_mode: bundle
         opa_bundle_url: https://play.openpolicyagent.org
