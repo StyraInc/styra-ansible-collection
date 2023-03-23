@@ -1,0 +1,30 @@
+name: "Collection code testing"
+
+on: pull_request
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  ansible_test_sanity:
+    name: Run ansible-test sanity validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Set environment variables'
+        run: |
+          echo "PY_COLORS=1" >> $GITHUB_ENV
+      - uses: actions/checkout@v3
+      - name: Set up Python 3
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      # - name: 'Install Python requirements'
+      #   run: |
+      #     pip install -r ansible_collections/styra/opa/requirements.txt --upgrade
+      #     pip install -r ansible_collections/styra/opa/requirements-dev.txt --upgrade
+      - name: 'Run ansible-test sanity'
+        run: |
+          cd ansible_collections/styra/opa/
+          ansible-test sanity --color yes -v --requirements
