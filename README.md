@@ -1,1 +1,1 @@
-README.md
+ansible_collections/styra/opa/README.md
