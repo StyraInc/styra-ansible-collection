@@ -10,6 +10,53 @@ This collection, `styra.opa`, is deployed to:
 You must publish each version to both Galaxy and Automation Hub
 
 
+## Running locally
+
+Install Docker/minikube and then start up k8s.
+
+```
+minikube start
+```
+
+Setup a Python virtual environment
+```
+python3 -m pip install venv env
+source env/bin/activate
+```
+
+Install python dependencies
+
+```
+python3 -m pip install -r ansible_collections/styra/opa/requirements.txt
+```
+
+Install ansible dependencies
+```
+ansible-galaxy install kubernetes.core --token TOKEN
+```
+
+You may procure a token by logging in to galaxy.ansible.com/USERNAME/preferences and asking for the `API key`
+
+Choose one of the playbooks in README.md and put into a file `play.yml`.  Then run the ansible playbook.
+
+```
+ansible-playbook play.yml
+```
+
+To undo the ansible playbook, use the `state: absent` modifier in the playbook and rerun it as shown above, e.g.
+
+```
+- name: Barebones -- Run OPA as a PDP on k8s so that you can push policies and data into it
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  roles:
+    - name: styra.opa.k8s_pdp
+      vars:
+        config_mode: barebones
+      state: absent
+```
+
 ## Publishing the collection to Ansible Galaxy
 
 To upload an ansible collection to galaxy, you must

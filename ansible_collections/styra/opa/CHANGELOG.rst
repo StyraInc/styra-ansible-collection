@@ -5,6 +5,15 @@ Styra.OPA Release Notes
 .. contents:: Topics
 
 
+v1.1.0
+======
+
+Release Summary
+---------------
+
+Move to ansible-core:2.16.0
+
+
 v1.0.0
 ======
 
